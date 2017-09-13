@@ -142,8 +142,7 @@ def per_class_accuracies(labels,
           `labels`, and must be broadcastable to `labels` (i.e., all dimensions must
           be either `1`, or the same as the corresponding `labels` dimension).
         metrics_collections: An optional list of collections that
-          `mean_per_class_accuracy'
-          should be added to.
+          `accuracies' should be added to.
         updates_collections: An optional list of collections `update_op` should be
           added to.
         name: An optional variable_scope name.
@@ -179,7 +178,7 @@ def per_class_accuracies(labels,
 
         if metrics_collections:
             tf.get_default_graph().add_to_collections(
-                updates_collections, update_op)
+                metrics_collections, accuracies)
 
         if updates_collections:
             tf.get_default_graph().add_to_collections(
