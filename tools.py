@@ -206,6 +206,27 @@ def accuracy(logits, labels):
         return acc
 
 
+def group_sparsity(groups, collections=None):
+    # TODO: Add docs
+    collections = list(collections or [])
+    collections += [tf.GraphKeys.LOSSES]
+    group_losses = dict()
+
+    for group_name, group in groups.items():
+        group_loss = tf.reduce_sum(
+            input_tensor=tf.norm(group, ord='euclidean', axis=1),
+            name='{}_sparsity_loss'.format(group_name)
+        )
+        group_losses[group_name] = group_loss
+
+    total_loss = tf.reduce_sum(group_losses.values(), name='group_sparsity_loss')
+
+    for collection in collections:
+        tf.add_to_collection(collection, total_loss)
+
+    return total_loss, group_losses
+
+
 def _create_local(name, shape, collections=None, validate_shape=True,
                   dtype=tf.float32):
     """Creates a new local variable.
@@ -223,9 +244,15 @@ def _create_local(name, shape, collections=None, validate_shape=True,
     # Make sure local variables are added to tf.GraphKeys.LOCAL_VARIABLES
     collections = list(collections or [])
     collections += [tf.GraphKeys.LOCAL_VARIABLES]
-    return tf.get_local_variable(
+
+    var = tf.get_local_variable(
         name=name,
         shape=shape,
         dtype=dtype,
         initializer=tf.zeros_initializer,
         validate_shape=validate_shape)
+
+    for collection in collections:
+        tf.add_to_collection(collection, var)
+
+    return var
