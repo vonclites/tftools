@@ -206,7 +206,7 @@ def accuracy(logits, labels):
         return acc
 
 
-def group_sparsity(groups, collections=None):
+def group_sparsity(groups, cost, collections=None):
     # TODO: Add docs
     collections = list(collections or [])
     collections += [tf.GraphKeys.LOSSES]
@@ -214,12 +214,14 @@ def group_sparsity(groups, collections=None):
 
     for group_name, group in groups.items():
         group_loss = tf.reduce_sum(
-            input_tensor=tf.norm(group, ord='euclidean', axis=1),
-            name='{}_sparsity_loss'.format(group_name)
-        )
+            input_tensor=tf.norm(group, ord='euclidean', axis=0)
+        ) / tf.to_float(tf.shape(group)[0])
+        group_loss = tf.multiply(cost, group_loss,
+                                 name='{}_sparsity_loss'.format(group_name))
         group_losses[group_name] = group_loss
 
-    total_loss = tf.reduce_sum(group_losses.values(), name='group_sparsity_loss')
+    total_loss = tf.reduce_sum(list(group_losses.values()),
+                               name='group_sparsity_loss')
 
     for collection in collections:
         tf.add_to_collection(collection, total_loss)
