@@ -3,41 +3,38 @@ import re
 import tensorflow as tf
 
 
-def initialize_from_checkpoint(sess,
-                               checkpoint,
-                               checkpoint_scope='',
-                               model_scope='',
-                               include_patterns=None,
-                               exclude_patterns=None):
+def get_warmstart_mapping(checkpoint_file,
+                          checkpoint_scope='',
+                          variable_scope='',
+                          include_patterns=None,
+                          exclude_patterns=None):
     """
-    Initialize relevant variables of a model from a checkpoint.
+    Returns dict mapping the names of variables in the checkpoint
+    to the corresponding names of variables in the model being
+    warm-started.
 
-    Restores common variables between the model and a checkpoint.
-    Limited support for translating variable names in the checkpoint,
-     to variable names in current model.
+    Can be used as assignment_map parameter in tf.train.init_from_checkpoint
 
-    :param sess:
-        tf.Session object
-    :param checkpoint:
+    :param checkpoint_file:
         path to the checkpoint file or directory
     :param checkpoint_scope:
         prefix of checkpoint variable names to translate
-    :param model_scope:
+    :param variable_scope:
         corresponding prefix of variables names in the model
     :param include_patterns:
         variables to include in the restore
     :param exclude_patterns:
         variables to exclude in the restore
     """
-    if os.path.isdir(checkpoint):
-        checkpoint = tf.train.latest_checkpoint(checkpoint)
-    reader = tf.train.NewCheckpointReader(checkpoint)
+    if os.path.isdir(checkpoint_file):
+        checkpoint_file = tf.train.latest_checkpoint(checkpoint_file)
+    reader = tf.train.NewCheckpointReader(checkpoint_file)
     foreign_var_names = reader.get_variable_to_shape_map().keys()
 
     '''
     If checkpoint variables have another scope,
     translate them to this network's scope. '''
-    translation = {var.replace(checkpoint_scope, model_scope): var
+    translation = {var.replace(checkpoint_scope, variable_scope): var
                    for var in foreign_var_names}
 
     all_domestic_vars = tf.contrib.framework.get_variables()
@@ -56,8 +53,7 @@ def initialize_from_checkpoint(sess,
         for domestic_var_name in domestic_var_names
         if domestic_var_name in translation
     }
-    restorer = tf.train.Saver(variables_to_restore)
-    restorer.restore(sess, checkpoint)
+    return variables_to_restore
 
 
 def streaming_confusion_matrix(labels, predictions, num_classes, weights=None):
