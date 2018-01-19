@@ -3,11 +3,11 @@ import re
 import tensorflow as tf
 
 
-def get_warmstart_mapping(checkpoint_file,
-                          checkpoint_scope='',
-                          variable_scope='',
-                          include_patterns=None,
-                          exclude_patterns=None):
+def get_warm_start_mapping(checkpoint_file,
+                           checkpoint_scope='',
+                           variable_scope='',
+                           include_patterns=None,
+                           exclude_patterns=None):
     """
     Returns dict mapping the names of variables in the checkpoint
     to the corresponding names of variables in the model being
