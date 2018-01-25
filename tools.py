@@ -4,8 +4,8 @@ import tensorflow as tf
 
 
 def get_warm_start_mapping(checkpoint_file,
-                           checkpoint_scope='',
-                           variable_scope='',
+                           checkpoint_scope,
+                           model_scope,
                            include_patterns=None,
                            exclude_patterns=None):
     """
@@ -13,13 +13,16 @@ def get_warm_start_mapping(checkpoint_file,
     to the corresponding names of variables in the model being
     warm-started.
 
+    This is restricted to the case where the model variables differ only
+    by a prefix.
+
     Can be used as assignment_map parameter in tf.train.init_from_checkpoint
 
     :param checkpoint_file:
         path to the checkpoint file or directory
     :param checkpoint_scope:
         prefix of checkpoint variable names to translate
-    :param variable_scope:
+    :param model_scope:
         corresponding prefix of variables names in the model
     :param include_patterns:
         variables to include in the restore
@@ -34,7 +37,7 @@ def get_warm_start_mapping(checkpoint_file,
     '''
     If checkpoint variables have another scope,
     translate them to this network's scope. '''
-    translation = {var.replace(checkpoint_scope, variable_scope): var
+    translation = {var.replace(checkpoint_scope, model_scope): var
                    for var in foreign_var_names}
 
     all_domestic_vars = tf.contrib.framework.get_variables()
