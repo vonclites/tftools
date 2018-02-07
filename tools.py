@@ -3,7 +3,7 @@ import re
 import tensorflow as tf
 
 
-def get_warm_start_mapping(checkpoint_file,
+def get_warm_start_mapping(checkpoint,
                            checkpoint_scope,
                            model_scope,
                            include_patterns=None,
@@ -18,7 +18,7 @@ def get_warm_start_mapping(checkpoint_file,
 
     Can be used as assignment_map parameter in tf.train.init_from_checkpoint
 
-    :param checkpoint_file:
+    :param checkpoint:
         path to the checkpoint file or directory
     :param checkpoint_scope:
         prefix of checkpoint variable names to translate
@@ -29,9 +29,9 @@ def get_warm_start_mapping(checkpoint_file,
     :param exclude_patterns:
         variables to exclude in the restore
     """
-    if os.path.isdir(checkpoint_file):
-        checkpoint_file = tf.train.latest_checkpoint(checkpoint_file)
-    reader = tf.train.NewCheckpointReader(checkpoint_file)
+    if os.path.isdir(checkpoint):
+        checkpoint = tf.train.latest_checkpoint(checkpoint)
+    reader = tf.train.NewCheckpointReader(checkpoint)
     foreign_var_names = reader.get_variable_to_shape_map().keys()
 
     '''
