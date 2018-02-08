@@ -184,7 +184,7 @@ def per_class_accuracies(labels,
             tf.get_default_graph().add_to_collections(
                 updates_collections, update_op)
 
-        return accuracies, update_op
+        return accuracies, update_op, conf_matrix
 
 
 def accuracy(logits, labels):
@@ -245,7 +245,6 @@ def _create_local(name, shape, collections=None, validate_shape=True,
     """
     # Make sure local variables are added to tf.GraphKeys.LOCAL_VARIABLES
     collections = list(collections or [])
-    collections += [tf.GraphKeys.LOCAL_VARIABLES]
 
     var = tf.get_local_variable(
         name=name,
