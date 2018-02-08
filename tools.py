@@ -183,7 +183,7 @@ def per_class_accuracies(labels,
             tf.get_default_graph().add_to_collections(
                 updates_collections, update_op)
 
-        return accuracies, update_op
+        return accuracies, update_op, total_cm
 
 
 def accuracy(logits, labels):
