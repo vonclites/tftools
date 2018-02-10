@@ -17,6 +17,8 @@ def get_warm_start_mapping(checkpoint,
     by a prefix.
 
     Can be used as assignment_map parameter in tf.train.init_from_checkpoint
+    if variables are on same device, or tf.contrib.framework.assign_from_checkpoint
+    otherwise.
 
     :param checkpoint:
         path to the checkpoint file or directory
@@ -212,9 +214,8 @@ def group_sparsity(groups, cost, collections=None):
     group_losses = dict()
 
     for group_name, group in groups.items():
-        group_loss = tf.reduce_sum(
-            input_tensor=tf.norm(group, ord='euclidean', axis=0)
-        ) / tf.to_float(tf.shape(group)[0])
+        group_loss = tf.norm(group, ord='euclidean') \
+                     / tf.to_float(tf.shape(group)[0])
         group_loss = tf.multiply(cost, group_loss,
                                  name='{}_sparsity_loss'.format(group_name))
         group_losses[group_name] = group_loss
