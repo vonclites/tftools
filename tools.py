@@ -27,7 +27,7 @@ def get_warm_start_mapping(checkpoint,
     :param model_scope:
         corresponding prefix of variables names in the model
     :param include_patterns:
-        variables to include in the restore
+        variables within model_scope to include in the restore
     :param exclude_patterns:
         variables to exclude in the restore
     """
